@@ -4,7 +4,16 @@ const pool = require("../config/database");
 
 const listUsers = async (request, response) => {
   try {
-    const result = await pool.query("SELECT * FROM users");
+    const userId = request.user.id;
+
+    const result = await pool.query(
+      `
+        SELECT id, name, email, phone, created_at
+        FROM users
+        WHERE id = $1
+      `,
+      [userId],
+    );
 
     response.status(200).json(result.rows);
   } catch (error) {
@@ -28,7 +37,7 @@ const createUser = async (request, response) => {
         VALUES ($1, $2, $3, $4)
         RETURNING id, name, email, phone, created_at
       `,
-      [name, email, phone, hashedPassword]
+      [name, email, phone, hashedPassword],
     );
 
     response.status(201).json(result.rows[0]);
@@ -50,7 +59,7 @@ const loginUser = async (request, response) => {
         SELECT * FROM users
         WHERE email = $1
       `,
-      [email]
+      [email],
     );
 
     if (result.rows.length === 0) {
@@ -61,10 +70,7 @@ const loginUser = async (request, response) => {
 
     const user = result.rows[0];
 
-    const passwordMatch = await bcrypt.compare(
-      password,
-      user.password
-    );
+    const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
       return response.status(401).json({
@@ -80,7 +86,7 @@ const loginUser = async (request, response) => {
       process.env.JWT_SECRET,
       {
         expiresIn: "1d",
-      }
+      },
     );
 
     response.status(200).json({
@@ -99,10 +105,21 @@ const loginUser = async (request, response) => {
 const getUserById = async (request, response) => {
   try {
     const { id } = request.params;
+    const loggedUserId = request.user.id;
+
+    if (Number(id) !== loggedUserId) {
+      return response.status(403).json({
+        error: "Access denied",
+      });
+    }
 
     const result = await pool.query(
-      "SELECT * FROM users WHERE id = $1",
-      [id]
+      `
+        SELECT id, name, email, phone, created_at
+        FROM users
+        WHERE id = $1
+      `,
+      [id],
     );
 
     if (result.rows.length === 0) {
@@ -125,6 +142,14 @@ const updateUser = async (request, response) => {
   try {
     const { id } = request.params;
 
+    const loggedUserId = request.user.id;
+
+    if (Number(id) !== loggedUserId) {
+      return response.status(403).json({
+        error: "Access denied",
+      });
+    }
+
     const { name, email, phone } = request.body;
 
     const result = await pool.query(
@@ -135,9 +160,9 @@ const updateUser = async (request, response) => {
           email = $2,
           phone = $3
         WHERE id = $4
-        RETURNING *
+        RETURNING id, name, email, phone, created_at
       `,
-      [name, email, phone, id]
+      [name, email, phone, id],
     );
 
     if (result.rows.length === 0) {
@@ -160,13 +185,21 @@ const deleteUser = async (request, response) => {
   try {
     const { id } = request.params;
 
+    const loggedUserId = request.user.id;
+
+    if (Number(id) !== loggedUserId) {
+      return response.status(403).json({
+        error: "Access denied",
+      });
+    }
+
     const result = await pool.query(
       `
         DELETE FROM users
         WHERE id = $1
-        RETURNING *
+        RETURNING id, name, email, phone, created_at
       `,
-      [id]
+      [id],
     );
 
     if (result.rows.length === 0) {

@@ -17,14 +17,14 @@ const router = express.Router();
 
 router.get("/users", authMiddleware, listUsers);
 
-router.get("/users/:id", getUserById);
+router.get("/users/:id", authMiddleware, getUserById);
 
 router.post("/users", validateUser, createUser);
 
 router.post("/login", loginUser);
 
-router.put("/users/:id", validateUser, updateUser);
+router.put("/users/:id", authMiddleware, validateUser, updateUser);
 
-router.delete("/users/:id", deleteUser);
+router.delete("/users/:id", authMiddleware, deleteUser);
 
 module.exports = router;
