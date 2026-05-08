@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 
+const API_URL = "https://crud-users-fullstack.onrender.com";
+
 function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,6 +39,16 @@ function App() {
       "Access denied": "Acesso negado.",
       "User not found": "Usuário não encontrado.",
       "Internal server error": fallbackMessage,
+      "Email already exists": "E-mail já cadastrado.",
+      "Name is required": "Nome é obrigatório.",
+      "Email is required": "E-mail é obrigatório.",
+      "Invalid email format": "Formato de e-mail inválido.",
+      "Phone is required": "Telefone é obrigatório.",
+      "Phone must contain only numbers": "Telefone deve conter apenas números.",
+      "Phone must have at least 8 digits":
+        "Telefone deve ter pelo menos 8 dígitos.",
+      "Name must have at least 3 characters":
+        "Nome deve ter pelo menos 3 caracteres.",
     };
 
     return messages[backendMessage] || backendMessage || fallbackMessage;
@@ -48,7 +60,7 @@ function App() {
 
       if (!token) return;
 
-      const response = await axios.get("http://localhost:3000/users", {
+      const response = await axios.get(`${API_URL}/users`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -65,7 +77,7 @@ function App() {
     setIsLoggingIn(true);
 
     try {
-      const response = await axios.post("http://localhost:3000/login", {
+      const response = await axios.post(`${API_URL}/login`, {
         email,
         password,
       });
@@ -89,7 +101,7 @@ function App() {
     setIsCreatingUser(true);
 
     try {
-      await axios.post("http://localhost:3000/users", {
+      await axios.post(`${API_URL}/users`, {
         name,
         email: newUserEmail,
         phone,
@@ -123,7 +135,7 @@ function App() {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.delete(`http://localhost:3000/users/${id}`, {
+      await axios.delete(`${API_URL}/users/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -156,7 +168,7 @@ function App() {
       const token = localStorage.getItem("token");
 
       await axios.put(
-        `http://localhost:3000/users/${editingUserId}`,
+        `${API_URL}/users/${editingUserId}`,
         {
           name: editName,
           email: editEmail,
@@ -221,6 +233,7 @@ function App() {
           },
         }}
       />
+
       <div className="mx-auto grid min-h-[calc(100vh-1rem)] max-w-7xl gap-2 lg:grid-rows-[auto_1fr]">
         <header className="flex min-h-0 flex-col gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-5">
           <div className="min-w-0">
@@ -229,7 +242,7 @@ function App() {
             </span>
 
             <h1 className="text-lg font-bold leading-tight sm:truncate md:text-xl">
-              Painel de Gerenciamento de Usuarios
+              Painel de Gerenciamento de Usuários
             </h1>
           </div>
 
@@ -251,6 +264,7 @@ function App() {
                     Entre para carregar seus dados.
                   </p>
                 </div>
+
                 <span className="rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
                   JWT
                 </span>
@@ -286,11 +300,12 @@ function App() {
             <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
               <div className="mb-2 flex flex-col gap-1.5 min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between">
                 <div>
-                  <h2 className="text-base font-bold">Criar usuario</h2>
+                  <h2 className="text-base font-bold">Criar usuário</h2>
                   <p className="text-[11px] text-slate-500">
                     Cadastre uma nova conta.
                   </p>
                 </div>
+
                 <span className="rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
                   Novo
                 </span>
@@ -341,24 +356,26 @@ function App() {
                   disabled={isCreatingUser}
                   className="rounded-md bg-slate-950 py-1.5 text-sm font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {isCreatingUser ? "Criando..." : "Criar usuario"}
+                  {isCreatingUser ? "Criando..." : "Criar usuário"}
                 </button>
               </form>
             </div>
 
             <div className="hidden min-h-0 rounded-lg border border-slate-200 bg-white p-3 shadow-sm lg:block [@media(max-height:760px)]:hidden">
               <p className="mb-2 text-sm font-bold text-slate-800">
-                Seguranca aplicada
+                Segurança aplicada
               </p>
 
               <div className="grid grid-cols-2 gap-2 text-xs font-medium text-slate-600">
-                <span className="rounded-md bg-slate-100 px-3 py-1.5">bcrypt</span>
+                <span className="rounded-md bg-slate-100 px-3 py-1.5">
+                  bcrypt
+                </span>
                 <span className="rounded-md bg-slate-100 px-3 py-1.5">JWT</span>
                 <span className="rounded-md bg-slate-100 px-3 py-1.5">
                   Rotas privadas
                 </span>
                 <span className="rounded-md bg-slate-100 px-3 py-1.5">
-                  Acesso proprio
+                  Acesso próprio
                 </span>
               </div>
             </div>
@@ -382,7 +399,7 @@ function App() {
               <div className="min-h-0 flex-1 space-y-2 lg:overflow-y-auto lg:pr-1">
                 {users.length === 0 && (
                   <div className="grid min-h-40 place-items-center rounded-lg border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm font-medium text-slate-500 lg:h-full">
-                    Faca login para carregar seus dados.
+                    Faça login para carregar seus dados.
                   </div>
                 )}
 
@@ -419,7 +436,9 @@ function App() {
                           disabled={deletingUserId === user.id}
                           className="rounded-md bg-rose-600 px-3 py-2 text-sm font-bold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          {deletingUserId === user.id ? "Excluindo..." : "Excluir"}
+                          {deletingUserId === user.id
+                            ? "Excluindo..."
+                            : "Excluir"}
                         </button>
                       </div>
                     </div>
