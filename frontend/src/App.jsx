@@ -197,7 +197,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen overflow-y-auto bg-[#edf2f7] px-3 py-3 text-slate-950 sm:px-4 lg:h-screen lg:overflow-hidden">
+    <div className="box-border min-h-screen overflow-y-auto bg-[#edf2f7] px-3 py-2 text-slate-950 sm:px-4">
       <Toaster
         position="top-right"
         toastOptions={{
@@ -221,33 +221,33 @@ function App() {
           },
         }}
       />
-      <div className="mx-auto grid min-h-screen max-w-7xl gap-3 lg:h-full lg:min-h-0 lg:grid-rows-[auto_1fr]">
-        <header className="flex min-h-0 flex-col gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-5">
+      <div className="mx-auto grid min-h-[calc(100vh-1rem)] max-w-7xl gap-2 lg:grid-rows-[auto_1fr]">
+        <header className="flex min-h-0 flex-col gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-5">
           <div className="min-w-0">
-            <span className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-emerald-700">
               React + Node.js + PostgreSQL
             </span>
 
-            <h1 className="text-xl font-bold leading-tight sm:truncate md:text-2xl">
+            <h1 className="text-lg font-bold leading-tight sm:truncate md:text-xl">
               Painel de Gerenciamento de Usuarios
             </h1>
           </div>
 
           <button
             onClick={handleLogout}
-            className="w-full shrink-0 rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 sm:w-auto"
+            className="w-full shrink-0 rounded-md border border-slate-300 px-4 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 sm:w-auto"
           >
             Sair
           </button>
         </header>
 
-        <main className="grid min-h-0 grid-cols-1 gap-3 lg:grid-cols-[360px_1fr]">
-          <section className="grid min-h-0 gap-3 lg:grid-rows-[auto_auto_1fr]">
-            <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
-              <div className="mb-3 flex flex-col gap-2 min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between">
+        <main className="grid min-h-0 grid-cols-1 gap-2 lg:grid-cols-[340px_1fr]">
+          <section className="grid min-h-0 gap-2 lg:grid-rows-[auto_auto_1fr]">
+            <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+              <div className="mb-2 flex flex-col gap-1.5 min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between">
                 <div>
                   <h2 className="text-base font-bold">Acessar conta</h2>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-[11px] text-slate-500">
                     Entre para carregar seus dados.
                   </p>
                 </div>
@@ -262,7 +262,7 @@ function App() {
                   placeholder="E-mail"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  className="w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
+                  className="w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-1.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
                 />
 
                 <input
@@ -270,24 +270,24 @@ function App() {
                   placeholder="Senha"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  className="w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
+                  className="w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-1.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
                 />
 
                 <button
                   type="submit"
                   disabled={isLoggingIn}
-                  className="rounded-md bg-emerald-600 py-2 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-md bg-emerald-600 py-1.5 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isLoggingIn ? "Entrando..." : "Entrar"}
                 </button>
               </form>
             </div>
 
-            <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
-              <div className="mb-3 flex flex-col gap-2 min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between">
+            <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+              <div className="mb-2 flex flex-col gap-1.5 min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between">
                 <div>
                   <h2 className="text-base font-bold">Criar usuario</h2>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-[11px] text-slate-500">
                     Cadastre uma nova conta.
                   </p>
                 </div>
@@ -296,13 +296,18 @@ function App() {
                 </span>
               </div>
 
+              <div className="mb-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-1.5 text-[11px] font-medium leading-snug text-amber-800">
+                <p>Ambiente de demonstração.</p>
+                <p>Utilize e-mail, telefone e senha fictícios.</p>
+              </div>
+
               <form onSubmit={handleCreateUser} className="grid gap-2">
                 <input
                   type="text"
                   placeholder="Nome"
                   value={name}
                   onChange={(event) => setName(event.target.value)}
-                  className="w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
+                  className="w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-1.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
                 />
 
                 <input
@@ -310,7 +315,7 @@ function App() {
                   placeholder="E-mail"
                   value={newUserEmail}
                   onChange={(event) => setNewUserEmail(event.target.value)}
-                  className="w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
+                  className="w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-1.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
                 />
 
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -319,7 +324,7 @@ function App() {
                     placeholder="Telefone"
                     value={phone}
                     onChange={(event) => setPhone(event.target.value)}
-                    className="min-w-0 rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
+                    className="min-w-0 rounded-md border border-slate-300 bg-slate-50 px-3 py-1.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
                   />
 
                   <input
@@ -327,32 +332,32 @@ function App() {
                     placeholder="Senha"
                     value={newUserPassword}
                     onChange={(event) => setNewUserPassword(event.target.value)}
-                    className="min-w-0 rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
+                    className="min-w-0 rounded-md border border-slate-300 bg-slate-50 px-3 py-1.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isCreatingUser}
-                  className="rounded-md bg-slate-950 py-2 text-sm font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-md bg-slate-950 py-1.5 text-sm font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isCreatingUser ? "Criando..." : "Criar usuario"}
                 </button>
               </form>
             </div>
 
-            <div className="hidden min-h-0 rounded-lg border border-slate-200 bg-white p-4 shadow-sm lg:block">
-              <p className="mb-3 text-sm font-bold text-slate-800">
+            <div className="hidden min-h-0 rounded-lg border border-slate-200 bg-white p-3 shadow-sm lg:block [@media(max-height:760px)]:hidden">
+              <p className="mb-2 text-sm font-bold text-slate-800">
                 Seguranca aplicada
               </p>
 
               <div className="grid grid-cols-2 gap-2 text-xs font-medium text-slate-600">
-                <span className="rounded-md bg-slate-100 px-3 py-2">bcrypt</span>
-                <span className="rounded-md bg-slate-100 px-3 py-2">JWT</span>
-                <span className="rounded-md bg-slate-100 px-3 py-2">
+                <span className="rounded-md bg-slate-100 px-3 py-1.5">bcrypt</span>
+                <span className="rounded-md bg-slate-100 px-3 py-1.5">JWT</span>
+                <span className="rounded-md bg-slate-100 px-3 py-1.5">
                   Rotas privadas
                 </span>
-                <span className="rounded-md bg-slate-100 px-3 py-2">
+                <span className="rounded-md bg-slate-100 px-3 py-1.5">
                   Acesso proprio
                 </span>
               </div>
