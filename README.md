@@ -1,10 +1,10 @@
 # CRUD Users Full Stack
 
-Aplicacao full stack para gerenciamento de usuarios com autenticacao JWT, API REST em Node.js, banco PostgreSQL e interface responsiva em React.
+Aplicação full stack para gerenciamento de usuários com autenticação JWT, API REST em Node.js, banco PostgreSQL e interface responsiva em React.
 
-O projeto simula um fluxo real de cadastro, login, protecao de rotas e gerenciamento dos dados do usuario autenticado. A interface foi pensada para ser objetiva, limpa e adaptada para desktop e mobile.
+O projeto simula um fluxo real de cadastro, login, proteção de rotas e gerenciamento dos dados do usuário autenticado. A interface foi pensada para ser objetiva, limpa e adaptada para desktop e mobile.
 
-O frontend tambem conta com feedback visual profissional usando toasts, estados de carregamento em botoes e confirmacao antes de acoes destrutivas.
+O frontend também conta com feedback visual profissional usando toasts, estados de carregamento em botões e confirmação antes de ações destrutivas.
 
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
@@ -18,33 +18,33 @@ O frontend tambem conta com feedback visual profissional usando toasts, estados 
 
 Este projeto foi desenvolvido para praticar e demonstrar conceitos importantes de desenvolvimento full stack:
 
-- Criacao de API REST com Node.js e Express
-- Integracao com banco de dados PostgreSQL
-- Cadastro e login de usuarios
+- Criação de API REST com Node.js e Express
+- Integração com banco de dados PostgreSQL
+- Cadastro e login de usuários
 - Criptografia de senhas com bcrypt
-- Autenticacao com JSON Web Token
+- Autenticação com JSON Web Token
 - Middleware para rotas protegidas
-- Controle de acesso por usuario autenticado
+- Controle de acesso por usuário autenticado
 - Interface responsiva com React, Vite e Tailwind CSS
 - Feedback visual com React Hot Toast
-- Loading states em acoes do usuario
+- Loading states em ações do usuário
 
 ## Funcionalidades
 
-- Criar usuario
+- Criar usuário
 - Fazer login
 - Gerar token JWT
-- Listar os dados do usuario autenticado
-- Buscar usuario por ID
+- Listar os dados do usuário autenticado
+- Buscar usuário por ID
 - Atualizar nome, email e telefone
-- Excluir usuario
-- Confirmar exclusao antes de remover a conta
+- Excluir usuário
+- Confirmar exclusão antes de remover a conta
 - Proteger rotas privadas no backend
-- Validar dados antes de criar ou atualizar usuarios
+- Validar dados antes de criar ou atualizar usuários
 - Consumir a API pelo frontend com Axios
 - Exibir mensagens de sucesso e erro com toasts
-- Mostrar estados de carregamento nos botoes de login, criacao, edicao e exclusao
-- Tratar erros de API com mensagens amigaveis
+- Mostrar estados de carregamento nos botões de login, criação, edição e exclusão
+- Tratar erros de API com mensagens amigáveis
 
 ## Tecnologias utilizadas
 
@@ -100,15 +100,15 @@ crud-users-fullstack/
 
 ## Endpoints da API
 
-| Metodo | Rota | Descricao | Autenticacao |
+| Método | Rota | Descrição | Autenticação |
 | --- | --- | --- | --- |
-| GET | `/` | Verifica se a API esta rodando | Nao |
-| POST | `/users` | Cria um novo usuario | Nao |
-| POST | `/login` | Autentica usuario e retorna JWT | Nao |
-| GET | `/users` | Lista os dados do usuario logado | Sim |
-| GET | `/users/:id` | Busca usuario por ID | Sim |
-| PUT | `/users/:id` | Atualiza usuario | Sim |
-| DELETE | `/users/:id` | Exclui usuario | Sim |
+| GET | `/` | Verifica se a API está rodando | Não |
+| POST | `/users` | Cria um novo usuário | Não |
+| POST | `/login` | Autentica usuário e retorna JWT | Não |
+| GET | `/users` | Lista os dados do usuário logado | Sim |
+| GET | `/users/:id` | Busca usuário por ID | Sim |
+| PUT | `/users/:id` | Atualiza usuário | Sim |
+| DELETE | `/users/:id` | Exclui usuário | Sim |
 
 As rotas privadas utilizam o header:
 
@@ -118,10 +118,10 @@ Authorization: Bearer seu_token_jwt
 
 ## Como rodar localmente
 
-### 1. Clone o repositorio
+### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/seu-usuario/crud-users-fullstack.git
+git clone https://github.com/RenzoFernandes/crud-users-fullstack.git
 cd crud-users-fullstack
 ```
 
@@ -150,7 +150,7 @@ Execute o servidor:
 npm run dev
 ```
 
-A API ficara disponivel em:
+A API ficará disponível em:
 
 ```text
 http://localhost:3000
@@ -166,7 +166,7 @@ npm install
 npm run dev
 ```
 
-O frontend ficara disponivel em:
+O frontend ficará disponível em:
 
 ```text
 http://localhost:5173
@@ -174,7 +174,7 @@ http://localhost:5173
 
 ## Banco de dados
 
-O projeto utiliza PostgreSQL. A tabela principal esperada pela aplicacao e:
+O projeto utiliza PostgreSQL. A tabela principal esperada pela aplicação é:
 
 ```sql
 CREATE TABLE users (
@@ -193,12 +193,12 @@ A interface foi desenvolvida em React com foco em simplicidade e usabilidade:
 
 - Layout compacto para desktop
 - Design responsivo para mobile
-- Formularios de login, cadastro e edicao
-- Painel com dados do usuario autenticado
-- Feedback visual com notificacoes toast
-- Estados de carregamento nos botoes durante requisicoes
-- Confirmacao antes da exclusao da conta
-- Mensagens amigaveis para erros de autenticacao, token e conexao
+- Formulários de login, cadastro e edição
+- Painel com dados do usuário autenticado
+- Feedback visual com notificações toast
+- Estados de carregamento nos botões durante requisições
+- Confirmação antes da exclusão da conta
+- Mensagens amigáveis para erros de autenticação, token e conexão
 
 ## Preview
 
@@ -210,24 +210,59 @@ A interface foi desenvolvida em React com foco em simplicidade e usabilidade:
 
 ![Editar Usuário](./screenshots/edit-user.png)
 
+## Deploy
+
+### Frontend
+
+Link da aplicação hospedada na Vercel:
+
+```text
+Adicione aqui o link público da Vercel
+```
+
+### Backend
+
+Link da API hospedada no Render:
+
+```text
+https://crud-users-fullstack.onrender.com
+```
+
+### Banco de Dados
+
+PostgreSQL hospedado no Neon.
+
+> O backend está hospedado no plano gratuito do Render. A primeira requisição pode demorar alguns segundos caso o servidor esteja inativo.
+
+## Hospedagem e Infraestrutura
+
+- Frontend hospedado na Vercel
+- Backend hospedado no Render
+- Banco PostgreSQL hospedado no Neon
+- Deploy contínuo integrado ao GitHub
+- Atualizações automáticas via push na branch principal
+
 ## Aprendizados
 
 Durante o desenvolvimento foram aplicados conceitos de:
 
-- Separacao entre frontend e backend
+- Separação entre frontend e backend
 - Arquitetura MVC simplificada no backend
-- Boas praticas em rotas protegidas
+- Boas práticas em rotas protegidas
 - Consumo de API REST no React
-- Persistencia de token no navegador
-- Tratamento de erros em requisicoes HTTP
+- Persistência de token no navegador
+- Tratamento de erros em requisições HTTP
 - Design responsivo com Tailwind CSS
-- UX com feedback visual nao bloqueante
-- Controle de estados de carregamento por acao
+- UX com feedback visual não bloqueante
+- Controle de estados de carregamento por ação
 
 ## Status
 
-Projeto funcional e em evolucao.
+Projeto finalizado em sua primeira versão (V1), contendo autenticação JWT, CRUD completo, integração full stack, deploy em cloud e interface responsiva.
 
 ## Autor
 
 Desenvolvido por Renzo Heiki.
+
+- GitHub: [RenzoFernandes](https://github.com/RenzoFernandes)
+- LinkedIn: adicione aqui o link do seu perfil
