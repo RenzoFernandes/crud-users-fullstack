@@ -265,4 +265,4 @@ Projeto finalizado em sua primeira versão (V1), contendo autenticação JWT, CR
 Desenvolvido por Renzo Heiki.
 
 - GitHub: [RenzoFernandes](https://github.com/RenzoFernandes)
-- LinkedIn: adicione aqui o link do seu perfil
+- LinkedIn: [RenzoFernandes](www.linkedin.com/in/renzo-fernandes)
