@@ -1,18 +1,46 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
 function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [users, setUsers] = useState([]);
+
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserPassword, setNewUserPassword] = useState("");
+
   const [editingUserId, setEditingUserId] = useState(null);
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
   const [editPhone, setEditPhone] = useState("");
+
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isCreatingUser, setIsCreatingUser] = useState(false);
+  const [isUpdatingUser, setIsUpdatingUser] = useState(false);
+  const [deletingUserId, setDeletingUserId] = useState(null);
+
+  const getErrorMessage = (error, fallbackMessage) => {
+    if (!error.response) {
+      return "Erro ao conectar com servidor.";
+    }
+
+    const backendMessage = error.response?.data?.error;
+
+    const messages = {
+      "Invalid email or password": "E-mail ou senha inválidos.",
+      "Invalid token": "Token inválido.",
+      "Token not provided": "Token não informado.",
+      "Access denied": "Acesso negado.",
+      "User not found": "Usuário não encontrado.",
+      "Internal server error": fallbackMessage,
+    };
+
+    return messages[backendMessage] || backendMessage || fallbackMessage;
+  };
 
   const fetchUsers = async () => {
     try {
@@ -34,6 +62,7 @@ function App() {
 
   const handleLogin = async (event) => {
     event.preventDefault();
+    setIsLoggingIn(true);
 
     try {
       const response = await axios.post("http://localhost:3000/login", {
@@ -43,18 +72,21 @@ function App() {
 
       localStorage.setItem("token", response.data.token);
 
-      alert("Login successful!");
+      toast.success("Login realizado com sucesso!");
 
       await fetchUsers();
     } catch (error) {
       console.error(error);
 
-      alert("Invalid email or password");
+      toast.error(getErrorMessage(error, "E-mail ou senha inválidos."));
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
   const handleCreateUser = async (event) => {
     event.preventDefault();
+    setIsCreatingUser(true);
 
     try {
       await axios.post("http://localhost:3000/users", {
@@ -64,7 +96,7 @@ function App() {
         password: newUserPassword,
       });
 
-      alert("User created successfully!");
+      toast.success("Usuário criado com sucesso!");
 
       setName("");
       setNewUserEmail("");
@@ -75,11 +107,19 @@ function App() {
     } catch (error) {
       console.error(error);
 
-      alert(error.response?.data?.error || "Error creating user");
+      toast.error(getErrorMessage(error, "Erro ao criar usuário."));
+    } finally {
+      setIsCreatingUser(false);
     }
   };
 
   const handleDeleteUser = async (id) => {
+    const confirmed = window.confirm("Deseja realmente excluir sua conta?");
+
+    if (!confirmed) return;
+
+    setDeletingUserId(id);
+
     try {
       const token = localStorage.getItem("token");
 
@@ -89,13 +129,15 @@ function App() {
         },
       });
 
-      alert("User deleted successfully!");
+      toast.success("Usuário excluído com sucesso!");
 
       await fetchUsers();
     } catch (error) {
       console.error(error);
 
-      alert("Error deleting user");
+      toast.error(getErrorMessage(error, "Erro ao excluir usuário."));
+    } finally {
+      setDeletingUserId(null);
     }
   };
 
@@ -108,6 +150,7 @@ function App() {
 
   const handleUpdateUser = async (event) => {
     event.preventDefault();
+    setIsUpdatingUser(true);
 
     try {
       const token = localStorage.getItem("token");
@@ -126,7 +169,7 @@ function App() {
         },
       );
 
-      alert("User updated successfully!");
+      toast.success("Usuário atualizado com sucesso!");
 
       setEditingUserId(null);
       setEditName("");
@@ -137,148 +180,309 @@ function App() {
     } catch (error) {
       console.error(error);
 
-      alert(error.response?.data?.error || "Error updating user");
+      toast.error(getErrorMessage(error, "Erro ao atualizar usuário."));
+    } finally {
+      setIsUpdatingUser(false);
     }
   };
 
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setUsers([]);
+    toast.success("Logout realizado com sucesso!");
+  };
+
   return (
-    <div>
-      <h1>Login</h1>
+    <div className="min-h-screen overflow-y-auto bg-[#edf2f7] px-3 py-3 text-slate-950 sm:px-4 lg:h-screen lg:overflow-hidden">
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: "#0f172a",
+            color: "#f8fafc",
+            border: "1px solid #334155",
+          },
+          success: {
+            iconTheme: {
+              primary: "#10b981",
+              secondary: "#f8fafc",
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: "#f43f5e",
+              secondary: "#f8fafc",
+            },
+          },
+        }}
+      />
+      <div className="mx-auto grid min-h-screen max-w-7xl gap-3 lg:h-full lg:min-h-0 lg:grid-rows-[auto_1fr]">
+        <header className="flex min-h-0 flex-col gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-5">
+          <div className="min-w-0">
+            <span className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
+              React + Node.js + PostgreSQL
+            </span>
 
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
+            <h1 className="text-xl font-bold leading-tight sm:truncate md:text-2xl">
+              Painel de Gerenciamento de Usuarios
+            </h1>
+          </div>
 
-        <br />
-        <br />
+          <button
+            onClick={handleLogout}
+            className="w-full shrink-0 rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 sm:w-auto"
+          >
+            Sair
+          </button>
+        </header>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-        />
+        <main className="grid min-h-0 grid-cols-1 gap-3 lg:grid-cols-[360px_1fr]">
+          <section className="grid min-h-0 gap-3 lg:grid-rows-[auto_auto_1fr]">
+            <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+              <div className="mb-3 flex flex-col gap-2 min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between">
+                <div>
+                  <h2 className="text-base font-bold">Acessar conta</h2>
+                  <p className="text-xs text-slate-500">
+                    Entre para carregar seus dados.
+                  </p>
+                </div>
+                <span className="rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                  JWT
+                </span>
+              </div>
 
-        <br />
-        <br />
+              <form onSubmit={handleLogin} className="grid gap-2">
+                <input
+                  type="email"
+                  placeholder="E-mail"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  className="w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
+                />
 
-        <button type="submit">Login</button>
-      </form>
+                <input
+                  type="password"
+                  placeholder="Senha"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  className="w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
+                />
 
-      <hr />
+                <button
+                  type="submit"
+                  disabled={isLoggingIn}
+                  className="rounded-md bg-emerald-600 py-2 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isLoggingIn ? "Entrando..." : "Entrar"}
+                </button>
+              </form>
+            </div>
 
-      <hr />
+            <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+              <div className="mb-3 flex flex-col gap-2 min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between">
+                <div>
+                  <h2 className="text-base font-bold">Criar usuario</h2>
+                  <p className="text-xs text-slate-500">
+                    Cadastre uma nova conta.
+                  </p>
+                </div>
+                <span className="rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+                  Novo
+                </span>
+              </div>
 
-      <h2>Create User</h2>
+              <form onSubmit={handleCreateUser} className="grid gap-2">
+                <input
+                  type="text"
+                  placeholder="Nome"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  className="w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
+                />
 
-      <form onSubmit={handleCreateUser}>
-        <input
-          type="text"
-          placeholder="Name"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-        />
+                <input
+                  type="email"
+                  placeholder="E-mail"
+                  value={newUserEmail}
+                  onChange={(event) => setNewUserEmail(event.target.value)}
+                  className="w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
+                />
 
-        <br />
-        <br />
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <input
+                    type="text"
+                    placeholder="Telefone"
+                    value={phone}
+                    onChange={(event) => setPhone(event.target.value)}
+                    className="min-w-0 rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
+                  />
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={newUserEmail}
-          onChange={(event) => setNewUserEmail(event.target.value)}
-        />
+                  <input
+                    type="password"
+                    placeholder="Senha"
+                    value={newUserPassword}
+                    onChange={(event) => setNewUserPassword(event.target.value)}
+                    className="min-w-0 rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
+                  />
+                </div>
 
-        <br />
-        <br />
+                <button
+                  type="submit"
+                  disabled={isCreatingUser}
+                  className="rounded-md bg-slate-950 py-2 text-sm font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isCreatingUser ? "Criando..." : "Criar usuario"}
+                </button>
+              </form>
+            </div>
 
-        <input
-          type="text"
-          placeholder="Phone"
-          value={phone}
-          onChange={(event) => setPhone(event.target.value)}
-        />
+            <div className="hidden min-h-0 rounded-lg border border-slate-200 bg-white p-4 shadow-sm lg:block">
+              <p className="mb-3 text-sm font-bold text-slate-800">
+                Seguranca aplicada
+              </p>
 
-        <br />
-        <br />
+              <div className="grid grid-cols-2 gap-2 text-xs font-medium text-slate-600">
+                <span className="rounded-md bg-slate-100 px-3 py-2">bcrypt</span>
+                <span className="rounded-md bg-slate-100 px-3 py-2">JWT</span>
+                <span className="rounded-md bg-slate-100 px-3 py-2">
+                  Rotas privadas
+                </span>
+                <span className="rounded-md bg-slate-100 px-3 py-2">
+                  Acesso proprio
+                </span>
+              </div>
+            </div>
+          </section>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={newUserPassword}
-          onChange={(event) => setNewUserPassword(event.target.value)}
-        />
+          <section className="grid min-h-0 gap-3 lg:grid-rows-[1fr_auto]">
+            <div className="flex min-h-0 flex-col rounded-lg border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+              <div className="mb-3 flex flex-col gap-3 border-b border-slate-200 pb-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                <div className="min-w-0">
+                  <h2 className="text-base font-bold">Minha conta</h2>
+                  <p className="text-xs text-slate-500 sm:truncate">
+                    Dados retornados pela API protegida.
+                  </p>
+                </div>
 
-        <br />
-        <br />
+                <div className="shrink-0 rounded-md bg-emerald-50 px-3 py-1.5 text-sm font-bold text-emerald-700">
+                  {users.length} registro(s)
+                </div>
+              </div>
 
-        <button type="submit">Create User</button>
-      </form>
+              <div className="min-h-0 flex-1 space-y-2 lg:overflow-y-auto lg:pr-1">
+                {users.length === 0 && (
+                  <div className="grid min-h-40 place-items-center rounded-lg border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm font-medium text-slate-500 lg:h-full">
+                    Faca login para carregar seus dados.
+                  </div>
+                )}
 
-      <h2>Users</h2>
+                {users.map((user) => (
+                  <div
+                    key={user.id}
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3"
+                  >
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                      <div className="min-w-0">
+                        <h3 className="truncate text-base font-bold text-slate-950">
+                          {user.name}
+                        </h3>
 
-      {users.map((user) => (
-        <div key={user.id}>
-          <p>{user.name}</p>
-          <p>{user.email}</p>
+                        <p className="truncate text-sm text-slate-600">
+                          {user.email}
+                        </p>
 
-          <button onClick={() => handleDeleteUser(user.id)}>Delete</button>
+                        <p className="text-xs text-slate-500">
+                          Telefone: {user.phone}
+                        </p>
+                      </div>
 
-          <button onClick={() => handleStartEdit(user)}>Edit</button>
+                      <div className="grid shrink-0 grid-cols-2 gap-2 md:flex">
+                        <button
+                          onClick={() => handleStartEdit(user)}
+                          className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-bold text-white transition hover:bg-indigo-700"
+                        >
+                          Editar
+                        </button>
 
-          <hr />
-        </div>
-      ))}
+                        <button
+                          onClick={() => handleDeleteUser(user.id)}
+                          disabled={deletingUserId === user.id}
+                          className="rounded-md bg-rose-600 px-3 py-2 text-sm font-bold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {deletingUserId === user.id ? "Excluindo..." : "Excluir"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-      {editingUserId && (
-        <>
-          <hr />
+            {editingUserId && (
+              <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <div>
+                    <h2 className="text-base font-bold">Editar conta</h2>
+                    <p className="text-xs text-slate-500">
+                      Atualize os dados selecionados.
+                    </p>
+                  </div>
+                </div>
 
-          <h2>Edit User</h2>
+                <form
+                  onSubmit={handleUpdateUser}
+                  className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-[1fr_1fr_160px_auto_auto]"
+                >
+                  <input
+                    type="text"
+                    placeholder="Nome"
+                    value={editName}
+                    onChange={(event) => setEditName(event.target.value)}
+                    className="min-w-0 rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
+                  />
 
-          <form onSubmit={handleUpdateUser}>
-            <input
-              type="text"
-              placeholder="Name"
-              value={editName}
-              onChange={(event) => setEditName(event.target.value)}
-            />
+                  <input
+                    type="email"
+                    placeholder="E-mail"
+                    value={editEmail}
+                    onChange={(event) => setEditEmail(event.target.value)}
+                    className="min-w-0 rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
+                  />
 
-            <br />
-            <br />
+                  <input
+                    type="text"
+                    placeholder="Telefone"
+                    value={editPhone}
+                    onChange={(event) => setEditPhone(event.target.value)}
+                    className="min-w-0 rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
+                  />
 
-            <input
-              type="email"
-              placeholder="Email"
-              value={editEmail}
-              onChange={(event) => setEditEmail(event.target.value)}
-            />
+                  <button
+                    type="submit"
+                    disabled={isUpdatingUser}
+                    className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {isUpdatingUser ? "Salvando..." : "Salvar"}
+                  </button>
 
-            <br />
-            <br />
-
-            <input
-              type="text"
-              placeholder="Phone"
-              value={editPhone}
-              onChange={(event) => setEditPhone(event.target.value)}
-            />
-
-            <br />
-            <br />
-
-            <button type="submit">Save Changes</button>
-
-            <button type="button" onClick={() => setEditingUserId(null)}>
-              Cancel
-            </button>
-          </form>
-        </>
-      )}
+                  <button
+                    type="button"
+                    onClick={() => setEditingUserId(null)}
+                    className="rounded-md border border-slate-300 px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-100"
+                  >
+                    Cancelar
+                  </button>
+                </form>
+              </div>
+            )}
+          </section>
+        </main>
+      </div>
     </div>
   );
 }
