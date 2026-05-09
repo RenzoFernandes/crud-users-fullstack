@@ -4,6 +4,50 @@ import toast, { Toaster } from "react-hot-toast";
 
 const API_URL = "https://crud-users-fullstack.onrender.com";
 
+const stripPhoneDigits = (value) =>
+  String(value || "")
+    .replace(/\D/g, "")
+    .slice(0, 11);
+
+const formatPhone = (value) => {
+  const digits = stripPhoneDigits(value);
+
+  if (digits.length <= 2) {
+    return digits;
+  }
+
+  if (digits.length <= 6) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  }
+
+  if (digits.length <= 10) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  }
+
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+};
+
+const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+const validateUserForm = ({ name, email, phone, password }) => {
+  const phoneDigits = stripPhoneDigits(phone);
+
+  if (!name.trim()) return "Nome e obrigatorio.";
+  if (name.trim().length < 3) return "Nome deve ter pelo menos 3 caracteres.";
+  if (!email.trim()) return "E-mail e obrigatorio.";
+  if (!isValidEmail(email.trim())) return "Formato de e-mail invalido.";
+  if (!phoneDigits) return "Telefone e obrigatorio.";
+  if (phoneDigits.length < 10 || phoneDigits.length > 11) {
+    return "Telefone deve ter DDD e 10 ou 11 numeros.";
+  }
+  if (phoneDigits.slice(0, 2) === "00") return "DDD do telefone invalido.";
+  if (password !== undefined && password.length < 6) {
+    return "Senha deve ter pelo menos 6 caracteres.";
+  }
+
+  return "";
+};
+
 function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,10 +89,16 @@ function App() {
       "Invalid email format": "Formato de e-mail inválido.",
       "Phone is required": "Telefone é obrigatório.",
       "Phone must contain only numbers": "Telefone deve conter apenas números.",
+      "Phone must have 10 or 11 digits":
+        "Telefone deve ter DDD e 10 ou 11 números.",
+      "Invalid phone area code": "DDD do telefone inválido.",
       "Phone must have at least 8 digits":
         "Telefone deve ter pelo menos 8 dígitos.",
       "Name must have at least 3 characters":
         "Nome deve ter pelo menos 3 caracteres.",
+      "Password is required": "Senha é obrigatória.",
+      "Password must have at least 6 characters":
+        "Senha deve ter pelo menos 6 caracteres.",
     };
 
     return messages[backendMessage] || backendMessage || fallbackMessage;
@@ -74,11 +124,22 @@ function App() {
 
   const handleLogin = async (event) => {
     event.preventDefault();
+
+    if (!email.trim() || !password) {
+      toast.error("Informe e-mail e senha.");
+      return;
+    }
+
+    if (!isValidEmail(email.trim())) {
+      toast.error("Formato de e-mail invalido.");
+      return;
+    }
+
     setIsLoggingIn(true);
 
     try {
       const response = await axios.post(`${API_URL}/login`, {
-        email,
+        email: email.trim(),
         password,
       });
 
@@ -98,13 +159,25 @@ function App() {
 
   const handleCreateUser = async (event) => {
     event.preventDefault();
+    const validationError = validateUserForm({
+      name,
+      email: newUserEmail,
+      phone,
+      password: newUserPassword,
+    });
+
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
+
     setIsCreatingUser(true);
 
     try {
       await axios.post(`${API_URL}/users`, {
-        name,
-        email: newUserEmail,
-        phone,
+        name: name.trim(),
+        email: newUserEmail.trim(),
+        phone: stripPhoneDigits(phone),
         password: newUserPassword,
       });
 
@@ -157,11 +230,22 @@ function App() {
     setEditingUserId(user.id);
     setEditName(user.name);
     setEditEmail(user.email);
-    setEditPhone(user.phone);
+    setEditPhone(formatPhone(user.phone));
   };
 
   const handleUpdateUser = async (event) => {
     event.preventDefault();
+    const validationError = validateUserForm({
+      name: editName,
+      email: editEmail,
+      phone: editPhone,
+    });
+
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
+
     setIsUpdatingUser(true);
 
     try {
@@ -170,9 +254,9 @@ function App() {
       await axios.put(
         `${API_URL}/users/${editingUserId}`,
         {
-          name: editName,
-          email: editEmail,
-          phone: editPhone,
+          name: editName.trim(),
+          email: editEmail.trim(),
+          phone: stripPhoneDigits(editPhone),
         },
         {
           headers: {
@@ -199,7 +283,9 @@ function App() {
   };
 
   useEffect(() => {
-    fetchUsers();
+    queueMicrotask(() => {
+      void fetchUsers();
+    });
   }, []);
 
   const handleLogout = () => {
@@ -276,6 +362,7 @@ function App() {
                   placeholder="E-mail"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
+                  required
                   className="w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-1.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
                 />
 
@@ -284,6 +371,7 @@ function App() {
                   placeholder="Senha"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
+                  required
                   className="w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-1.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
                 />
 
@@ -322,6 +410,8 @@ function App() {
                   placeholder="Nome"
                   value={name}
                   onChange={(event) => setName(event.target.value)}
+                  required
+                  minLength={3}
                   className="w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-1.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
                 />
 
@@ -330,6 +420,7 @@ function App() {
                   placeholder="E-mail"
                   value={newUserEmail}
                   onChange={(event) => setNewUserEmail(event.target.value)}
+                  required
                   className="w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-1.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
                 />
 
@@ -338,7 +429,10 @@ function App() {
                     type="text"
                     placeholder="Telefone"
                     value={phone}
-                    onChange={(event) => setPhone(event.target.value)}
+                    onChange={(event) => setPhone(formatPhone(event.target.value))}
+                    inputMode="numeric"
+                    maxLength={15}
+                    required
                     className="min-w-0 rounded-md border border-slate-300 bg-slate-50 px-3 py-1.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
                   />
 
@@ -347,6 +441,8 @@ function App() {
                     placeholder="Senha"
                     value={newUserPassword}
                     onChange={(event) => setNewUserPassword(event.target.value)}
+                    required
+                    minLength={6}
                     className="min-w-0 rounded-md border border-slate-300 bg-slate-50 px-3 py-1.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
                   />
                 </div>
@@ -419,7 +515,7 @@ function App() {
                         </p>
 
                         <p className="text-xs text-slate-500">
-                          Telefone: {user.phone}
+                          Telefone: {formatPhone(user.phone)}
                         </p>
                       </div>
 
@@ -467,6 +563,8 @@ function App() {
                     placeholder="Nome"
                     value={editName}
                     onChange={(event) => setEditName(event.target.value)}
+                    required
+                    minLength={3}
                     className="min-w-0 rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
                   />
 
@@ -475,6 +573,7 @@ function App() {
                     placeholder="E-mail"
                     value={editEmail}
                     onChange={(event) => setEditEmail(event.target.value)}
+                    required
                     className="min-w-0 rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
                   />
 
@@ -482,7 +581,12 @@ function App() {
                     type="text"
                     placeholder="Telefone"
                     value={editPhone}
-                    onChange={(event) => setEditPhone(event.target.value)}
+                    onChange={(event) =>
+                      setEditPhone(formatPhone(event.target.value))
+                    }
+                    inputMode="numeric"
+                    maxLength={15}
+                    required
                     className="min-w-0 rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white"
                   />
 
